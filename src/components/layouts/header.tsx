@@ -342,9 +342,6 @@ const Header = () => {
     setMobileMenuOpen(false);
   };
 
-  const easedScrollProgress = 1 - Math.pow(1 - scrollProgress, 3);
-  const logoProgress = isDesktop ? easedScrollProgress : 0;
-
   const mobileHeaderOffset =
     HEADER_MIN_HEIGHT_REM + HEADER_VERTICAL_PADDING_REM * 2;
 
@@ -408,14 +405,14 @@ const Header = () => {
           href="/"
           aria-label="Hermes/AI"
           onMouseEnter={closeDesktopMenu}
-          className="shrink-0 rounded-md text-[22px] font-black uppercase tracking-tight text-black outline-none focus-visible:ring-2 focus-visible:ring-black/15"
+          className="shrink-0 text-[22px] font-semibold font-serif uppercase tracking-tight text-black outline-none focus-visible:ring-2 focus-visible:ring-black/15"
           style={{ textDecoration: "none" }}
         >
-          AI Manager
+          Dublios
         </Link>
 
         {/* Desktop nav */}
-        <nav className="hidden items-center gap-8 lg:flex" aria-label="Primary">
+        <nav className="hidden items-center gap-6 lg:flex" aria-label="Primary">
           {navigation.map((item) => {
             const isOpen = activeMenu === item.label;
 
@@ -459,7 +456,7 @@ const Header = () => {
           onMouseEnter={closeDesktopMenu}
         >
           <Link
-            href="/dashboard"
+            href="/login"
             className="inline-flex items-center gap-1.5 rounded-[12px] bg-black px-5.5 py-2.5 text-[14px] font-medium tracking-[0.01em] text-white transition-[background-color,transform] duration-200 hover:bg-black/85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/20"
             style={{ textDecoration: "none" }}
           >
@@ -802,7 +799,7 @@ const Header = () => {
             >
               <div className="border-t border-black/[0.08] pt-5">
                 <Link
-                  href="#try-hermes"
+                  href="/login"
                   onClick={closeMenus}
                   className="group flex items-center justify-between rounded-[14px] bg-black px-5 py-4 text-[15px] font-medium tracking-[-0.01em] text-white transition-[background-color,transform] duration-300 hover:bg-black/86 active:scale-[0.985] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/20"
                   style={{ textDecoration: "none" }}

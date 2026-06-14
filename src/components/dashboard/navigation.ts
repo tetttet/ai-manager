@@ -1,14 +1,19 @@
 import {
+  BookOpenText,
   Bot,
   ChartNoAxesColumnIncreasing,
   CircleGauge,
+  FileText,
   FolderKanban,
   LayoutDashboard,
   ListChecks,
+  MessagesSquare,
   Settings2,
   SquareActivity,
+  Table2,
   UserRoundCog,
   Workflow,
+  Wrench,
 } from "lucide-react"
 
 export const dashboardNavGroups = [
@@ -41,6 +46,37 @@ export const dashboardNavGroups = [
         title: "Agents",
         href: "/dashboard/assistants/agents",
         icon: UserRoundCog,
+      },
+    ],
+  },
+  {
+    title: "Knowledge Base",
+    icon: BookOpenText,
+    items: [
+      {
+        title: "General",
+        href: "/dashboard/knowledge-base/general",
+        icon: Settings2,
+      },
+      {
+        title: "Tables",
+        href: "/dashboard/knowledge-base/tables",
+        icon: Table2,
+      },
+      {
+        title: "Instructions",
+        href: "/dashboard/knowledge-base/instructions",
+        icon: FileText,
+      },
+      {
+        title: "Tools",
+        href: "/dashboard/knowledge-base/tools",
+        icon: Wrench,
+      },
+      {
+        title: "Channels",
+        href: "/dashboard/knowledge-base/channels",
+        icon: MessagesSquare,
       },
     ],
   },

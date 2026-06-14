@@ -1,5 +1,6 @@
 "use client"
 
+import { useClerk, useUser } from "@clerk/nextjs"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import * as React from "react"
@@ -51,17 +52,13 @@ import {
   SidebarMenuSubItem,
   SidebarRail,
 } from "@/components/ui/sidebar"
+import { Skeleton } from "@/components/ui/skeleton"
 import {
   dashboardNavGroups,
   dashboardProjects,
 } from "@/components/dashboard/navigation"
 
 const data = {
-  user: {
-    name: "Turan",
-    email: "owner@ai-manager.app",
-    avatar: "/avatars/shadcn.jpg",
-  },
   workspaces: [
     {
       name: "AI Manager",
@@ -81,11 +78,54 @@ const data = {
   ],
 }
 
+function getInitials(name: string, fallback: string) {
+  const source = name || fallback
+  const initials = source
+    .replace(/@.*$/, "")
+    .split(/[\s._-]+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join("")
+
+  return initials || "U"
+}
+
+function UserAvatar({
+  imageUrl,
+  initials,
+  name,
+}: {
+  imageUrl?: string
+  initials: string
+  name: string
+}) {
+  return (
+    <Avatar className="size-8 rounded-lg">
+      {imageUrl ? <AvatarImage src={imageUrl} alt={name} /> : null}
+      <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
+    </Avatar>
+  )
+}
+
 export function AppSidebar() {
   const pathname = usePathname()
+  const { openUserProfile, signOut } = useClerk()
+  const { isLoaded, user } = useUser()
   const [activeWorkspace, setActiveWorkspace] = React.useState(
     data.workspaces[0]
   )
+  const displayName =
+    user?.fullName ||
+    user?.username ||
+    user?.primaryEmailAddress?.emailAddress ||
+    "User"
+  const displayEmail =
+    user?.primaryEmailAddress?.emailAddress ||
+    user?.emailAddresses[0]?.emailAddress ||
+    "Signed in"
+  const initials = getInitials(displayName, displayEmail)
+  const isUserReady = isLoaded && Boolean(user)
 
   return (
     <Sidebar collapsible="icon">
@@ -149,41 +189,47 @@ export function AppSidebar() {
       <SidebarContent>
         <SidebarGroup>
           <SidebarMenu>
-            {dashboardNavGroups.map((group, index) => (
-              <Collapsible
-                key={group.title}
-                asChild
-                defaultOpen={index === 0}
-                className="group/collapsible"
-              >
-                <SidebarMenuItem>
-                  <CollapsibleTrigger asChild>
-                    <SidebarMenuButton tooltip={group.title}>
-                      <group.icon />
-                      <span>{group.title}</span>
-                      <ChevronRight className="ml-auto size-4 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
-                    </SidebarMenuButton>
-                  </CollapsibleTrigger>
-                  <CollapsibleContent>
-                    <SidebarMenuSub>
-                      {group.items.map((item) => (
-                        <SidebarMenuSubItem key={item.title}>
-                          <SidebarMenuSubButton
-                            asChild
-                            isActive={pathname === item.href}
-                          >
-                            <Link href={item.href}>
-                              <item.icon />
-                              <span>{item.title}</span>
-                            </Link>
-                          </SidebarMenuSubButton>
-                        </SidebarMenuSubItem>
-                      ))}
-                    </SidebarMenuSub>
-                  </CollapsibleContent>
-                </SidebarMenuItem>
-              </Collapsible>
-            ))}
+            {dashboardNavGroups.map((group, index) => {
+              const isGroupActive = group.items.some(
+                (item) => pathname === item.href
+              )
+
+              return (
+                <Collapsible
+                  key={group.title}
+                  asChild
+                  defaultOpen={index === 0 || isGroupActive}
+                  className="group/collapsible"
+                >
+                  <SidebarMenuItem>
+                    <CollapsibleTrigger asChild>
+                      <SidebarMenuButton tooltip={group.title}>
+                        <group.icon />
+                        <span>{group.title}</span>
+                        <ChevronRight className="ml-auto size-4 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                      </SidebarMenuButton>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent>
+                      <SidebarMenuSub>
+                        {group.items.map((item) => (
+                          <SidebarMenuSubItem key={item.title}>
+                            <SidebarMenuSubButton
+                              asChild
+                              isActive={pathname === item.href}
+                            >
+                              <Link href={item.href}>
+                                <item.icon />
+                                <span>{item.title}</span>
+                              </Link>
+                            </SidebarMenuSubButton>
+                          </SidebarMenuSubItem>
+                        ))}
+                      </SidebarMenuSub>
+                    </CollapsibleContent>
+                  </SidebarMenuItem>
+                </Collapsible>
+              )
+            })}
           </SidebarMenu>
         </SidebarGroup>
         <SidebarGroup>
@@ -213,17 +259,32 @@ export function AppSidebar() {
               <DropdownMenuTrigger asChild>
                 <SidebarMenuButton
                   size="lg"
+                  disabled={!isUserReady}
                   className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                 >
-                  <Avatar className="size-8 rounded-lg">
-                    <AvatarImage src={data.user.avatar} alt={data.user.name} />
-                    <AvatarFallback className="rounded-lg">TY</AvatarFallback>
-                  </Avatar>
+                  {isUserReady ? (
+                    <UserAvatar
+                      imageUrl={user?.imageUrl}
+                      initials={initials}
+                      name={displayName}
+                    />
+                  ) : (
+                    <Skeleton className="size-8 rounded-lg" />
+                  )}
                   <div className="grid flex-1 text-left text-sm leading-tight">
-                    <span className="truncate font-semibold">
-                      {data.user.name}
-                    </span>
-                    <span className="truncate text-xs">{data.user.email}</span>
+                    {isUserReady ? (
+                      <>
+                        <span className="truncate font-semibold">
+                          {displayName}
+                        </span>
+                        <span className="truncate text-xs">{displayEmail}</span>
+                      </>
+                    ) : (
+                      <>
+                        <Skeleton className="h-4 w-24" />
+                        <Skeleton className="mt-1 h-3 w-32" />
+                      </>
+                    )}
                   </div>
                   <ChevronsUpDown className="ml-auto size-4" />
                 </SidebarMenuButton>
@@ -236,16 +297,17 @@ export function AppSidebar() {
               >
                 <DropdownMenuLabel className="p-0 font-normal">
                   <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-                    <Avatar className="size-8 rounded-lg">
-                      <AvatarImage src={data.user.avatar} alt={data.user.name} />
-                      <AvatarFallback className="rounded-lg">TY</AvatarFallback>
-                    </Avatar>
+                    <UserAvatar
+                      imageUrl={user?.imageUrl}
+                      initials={initials}
+                      name={displayName}
+                    />
                     <div className="grid flex-1 text-left text-sm leading-tight">
                       <span className="truncate font-semibold">
-                        {data.user.name}
+                        {displayName}
                       </span>
                       <span className="truncate text-xs">
-                        {data.user.email}
+                        {displayEmail}
                       </span>
                     </div>
                   </div>
@@ -256,7 +318,7 @@ export function AppSidebar() {
                     <Sparkles />
                     Upgrade
                   </DropdownMenuItem>
-                  <DropdownMenuItem>
+                  <DropdownMenuItem onSelect={() => openUserProfile()}>
                     <BadgeCheck />
                     Account
                   </DropdownMenuItem>
@@ -270,7 +332,9 @@ export function AppSidebar() {
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                <DropdownMenuItem
+                  onSelect={() => void signOut({ redirectUrl: "/login" })}
+                >
                   <LogOut />
                   Log out
                 </DropdownMenuItem>
