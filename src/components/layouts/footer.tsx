@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { FOOTER_COLUMNS } from "@/constants/footer-navigations";
 import { FooterMeta } from "../ui/footer-meta";
@@ -27,10 +28,18 @@ const Footer = () => {
           <div className="flex flex-col gap-10 lg:min-h-150 lg:justify-between">
             <Link
               href="/"
-              aria-label="Hermes home"
-              className="group select-none inline-flex w-fit items-center whitespace-nowrap text-[32px] font-black uppercase leading-none text-white"
+              aria-label="Dublios home"
+              className="inline-flex w-fit select-none items-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-white/25"
               style={{ textDecoration: "none" }}
-            ></Link>
+            >
+              <Image
+                src="/images/logos/dublios.png"
+                alt=""
+                width={112}
+                height={112}
+                className="h-34 w-34 object-contain invert mix-blend-screen sm:h-38 sm:w-38"
+              />
+            </Link>
 
             <div className="hidden lg:block">
               <FooterMeta year={year} />
