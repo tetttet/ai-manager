@@ -405,7 +405,7 @@ const Header = () => {
           href="/"
           aria-label="Hermes/AI"
           onMouseEnter={closeDesktopMenu}
-          className="shrink-0 text-[22px] font-semibold font-serif uppercase tracking-tight text-black outline-none focus-visible:ring-2 focus-visible:ring-black/15"
+          className="select-none shrink-0 text-[22px] font-semibold font-serif uppercase tracking-tight text-black outline-none focus-visible:ring-2 focus-visible:ring-black/15"
           style={{ textDecoration: "none" }}
         >
           Dublios
@@ -457,10 +457,10 @@ const Header = () => {
         >
           <Link
             href="/login"
-            className="inline-flex items-center gap-1.5 rounded-[12px] bg-black px-5.5 py-2.5 text-[14px] font-medium tracking-[0.01em] text-white transition-[background-color,transform] duration-200 hover:bg-black/85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/20"
+            className="select-none inline-flex items-center gap-1.5 rounded-[12px] bg-black px-5.5 py-2.5 text-[14px] font-medium tracking-[0.01em] text-white transition-[background-color,transform] duration-200 hover:bg-black/85 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/20"
             style={{ textDecoration: "none" }}
           >
-            Try Hermes
+            Try Demo
             <IconRightTop />
           </Link>
         </div>
