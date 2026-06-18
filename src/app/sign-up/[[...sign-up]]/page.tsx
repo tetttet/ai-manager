@@ -1,17 +1,24 @@
 import { AuthPageShell } from "@/components/auth/auth-page-shell";
+import { AuthBackButton } from "@/components/auth/auth-back-button";
+import { AuthFormSkeleton } from "@/components/auth/auth-form-skeleton";
 import { authAppearance } from "@/components/auth/auth-appearance";
-import { SignUp } from "@clerk/nextjs";
+import { ClerkLoaded, ClerkLoading, SignUp } from "@clerk/nextjs";
 
 export default function SignUpPage() {
   return (
-    <AuthPageShell>
-      <SignUp
-        path="/sign-up"
-        routing="path"
-        signInUrl="/login"
-        fallbackRedirectUrl="/dashboard"
-        appearance={authAppearance}
-      />
+    <AuthPageShell topLeft={<AuthBackButton />}>
+      <ClerkLoading>
+        <AuthFormSkeleton />
+      </ClerkLoading>
+      <ClerkLoaded>
+        <SignUp
+          path="/sign-up"
+          routing="path"
+          signInUrl="/login"
+          fallbackRedirectUrl="/dashboard"
+          appearance={authAppearance}
+        />
+      </ClerkLoaded>
     </AuthPageShell>
   );
 }

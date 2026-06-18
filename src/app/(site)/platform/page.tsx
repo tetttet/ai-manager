@@ -1,9 +1,12 @@
-import React from 'react'
+import Company from "@/components/sections/company";
+import React from "react";
 
 const Page = () => {
   return (
-    <div>Page</div>
-  )
-}
+    <div className="bg-[#f4f2eb]">
+      <Company />
+    </div>
+  );
+};
 
-export default Page
+export default Page;

@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import { useClerk, useUser } from "@clerk/nextjs"
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import * as React from "react"
+import { useClerk, useUser } from "@clerk/nextjs";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import * as React from "react";
 import {
   BadgeCheck,
   Bell,
@@ -15,18 +15,13 @@ import {
   LogOut,
   Plus,
   Sparkles,
-} from "lucide-react"
+} from "lucide-react";
 
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/components/ui/avatar"
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
-} from "@/components/ui/collapsible"
+} from "@/components/ui/collapsible";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -36,7 +31,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuShortcut,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 import {
   Sidebar,
   SidebarContent,
@@ -51,12 +46,14 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
   SidebarRail,
-} from "@/components/ui/sidebar"
-import { Skeleton } from "@/components/ui/skeleton"
+} from "@/components/ui/sidebar";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   dashboardNavGroups,
   dashboardProjects,
-} from "@/components/dashboard/navigation"
+} from "@/components/dashboard/navigation";
+import { UserAvatar } from "../ui/user-avatar";
+import { getInitials } from "@/services/get-initials";
 
 const data = {
   workspaces: [
@@ -76,56 +73,26 @@ const data = {
       plan: "Beta",
     },
   ],
-}
-
-function getInitials(name: string, fallback: string) {
-  const source = name || fallback
-  const initials = source
-    .replace(/@.*$/, "")
-    .split(/[\s._-]+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase())
-    .join("")
-
-  return initials || "U"
-}
-
-function UserAvatar({
-  imageUrl,
-  initials,
-  name,
-}: {
-  imageUrl?: string
-  initials: string
-  name: string
-}) {
-  return (
-    <Avatar className="size-8 rounded-lg">
-      {imageUrl ? <AvatarImage src={imageUrl} alt={name} /> : null}
-      <AvatarFallback className="rounded-lg">{initials}</AvatarFallback>
-    </Avatar>
-  )
-}
+};
 
 export function AppSidebar() {
-  const pathname = usePathname()
-  const { openUserProfile, signOut } = useClerk()
-  const { isLoaded, user } = useUser()
+  const pathname = usePathname();
+  const { openUserProfile, signOut } = useClerk();
+  const { isLoaded, user } = useUser();
   const [activeWorkspace, setActiveWorkspace] = React.useState(
-    data.workspaces[0]
-  )
+    data.workspaces[0],
+  );
   const displayName =
     user?.fullName ||
     user?.username ||
     user?.primaryEmailAddress?.emailAddress ||
-    "User"
+    "User";
   const displayEmail =
     user?.primaryEmailAddress?.emailAddress ||
     user?.emailAddresses[0]?.emailAddress ||
-    "Signed in"
-  const initials = getInitials(displayName, displayEmail)
-  const isUserReady = isLoaded && Boolean(user)
+    "Signed in";
+  const initials = getInitials(displayName, displayEmail);
+  const isUserReady = isLoaded && Boolean(user);
 
   return (
     <Sidebar collapsible="icon">
@@ -191,8 +158,8 @@ export function AppSidebar() {
           <SidebarMenu>
             {dashboardNavGroups.map((group, index) => {
               const isGroupActive = group.items.some(
-                (item) => pathname === item.href
-              )
+                (item) => pathname === item.href,
+              );
 
               return (
                 <Collapsible
@@ -228,7 +195,7 @@ export function AppSidebar() {
                     </CollapsibleContent>
                   </SidebarMenuItem>
                 </Collapsible>
-              )
+              );
             })}
           </SidebarMenu>
         </SidebarGroup>
@@ -306,9 +273,7 @@ export function AppSidebar() {
                       <span className="truncate font-semibold">
                         {displayName}
                       </span>
-                      <span className="truncate text-xs">
-                        {displayEmail}
-                      </span>
+                      <span className="truncate text-xs">{displayEmail}</span>
                     </div>
                   </div>
                 </DropdownMenuLabel>
@@ -345,5 +310,5 @@ export function AppSidebar() {
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
-  )
+  );
 }

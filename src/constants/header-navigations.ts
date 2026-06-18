@@ -42,7 +42,7 @@ export const navigation: NavItem[] = [
         },
         {
           title: "Agencies",
-          href: "#",
+          href: "/agencies",
           description: "",
         },
         {
