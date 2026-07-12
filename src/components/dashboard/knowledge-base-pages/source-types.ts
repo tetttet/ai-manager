@@ -41,6 +41,9 @@ export type DocumentSource = KnowledgeSourceBase & {
   fileType: string;
   progress: number;
   error?: string;
+  cloudinaryPublicId?: string | null;
+  cloudinaryUrl?: string | null;
+  cloudinaryResourceType?: string | null;
 };
 
 export type TableSource = KnowledgeSourceBase & {
@@ -77,6 +80,7 @@ export type SourceFormValue =
       fileSize: number;
       fileType: string;
       shouldUpload: boolean;
+      file?: File;
     }
   | {
       type: "table";

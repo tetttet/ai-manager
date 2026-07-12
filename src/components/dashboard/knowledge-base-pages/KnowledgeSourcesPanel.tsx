@@ -15,6 +15,7 @@ type KnowledgeSourcesPanelProps = {
   selectedSourceIds: Set<string>;
   editorType: SourceType | null;
   editingSource: KnowledgeSource | null;
+  disabledSourceTypes: Set<SourceType>;
   onAddSource: (type: SourceType) => void;
   onCancelEditor: () => void;
   onSaveSource: (formValue: SourceSaveValue) => void;
@@ -31,6 +32,7 @@ export function KnowledgeSourcesPanel({
   selectedSourceIds,
   editorType,
   editingSource,
+  disabledSourceTypes,
   onAddSource,
   onCancelEditor,
   onSaveSource,
@@ -65,6 +67,7 @@ export function KnowledgeSourcesPanel({
         <SourceActionBar
           activeType={editorType}
           sourceCounts={sourceCounts}
+          disabledSourceTypes={disabledSourceTypes}
           onAddSource={onAddSource}
         />
       </div>

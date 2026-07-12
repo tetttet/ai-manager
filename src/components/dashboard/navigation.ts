@@ -7,13 +7,11 @@ import {
   FolderKanban,
   LayoutDashboard,
   ListChecks,
-  MessagesSquare,
   Settings2,
   SquareActivity,
   Table2,
   UserRoundCog,
   Workflow,
-  Wrench,
 } from "lucide-react"
 
 export const dashboardNavGroups = [
@@ -67,16 +65,6 @@ export const dashboardNavGroups = [
         title: "Instructions",
         href: "/dashboard/knowledge-base/instructions",
         icon: FileText,
-      },
-      {
-        title: "Tools",
-        href: "/dashboard/knowledge-base/tools",
-        icon: Wrench,
-      },
-      {
-        title: "Channels",
-        href: "/dashboard/knowledge-base/channels",
-        icon: MessagesSquare,
       },
     ],
   },

@@ -7,6 +7,10 @@ import { Bell, Search } from "lucide-react"
 import { AppSidebar } from "@/components/dashboard/app-sidebar"
 import { getDashboardBreadcrumbs } from "@/components/dashboard/navigation"
 import {
+  useWorkspace,
+  WorkspaceProvider,
+} from "@/components/dashboard/workspace-provider"
+import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbList,
@@ -28,8 +32,20 @@ import {
 } from "@/components/ui/tooltip"
 
 export function DashboardShell({ children }: { children: React.ReactNode }) {
+  return (
+    <WorkspaceProvider>
+      <DashboardShellContent>{children}</DashboardShellContent>
+    </WorkspaceProvider>
+  )
+}
+
+function DashboardShellContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
-  const breadcrumbs = getDashboardBreadcrumbs(pathname)
+  const { activeWorkspace } = useWorkspace()
+  const breadcrumbs = [
+    activeWorkspace?.name ?? "Workspace",
+    ...getDashboardBreadcrumbs(pathname),
+  ]
 
   return (
     <SidebarProvider defaultWidth="17rem">
@@ -49,8 +65,8 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
             <Breadcrumb>
               <BreadcrumbList className="flex-nowrap">
                 {breadcrumbs.map((breadcrumb, index) => (
-                  <Fragment key={breadcrumb}>
-                    <BreadcrumbItem>
+                  <Fragment key={`${breadcrumb}-${index}`}>
+                    <BreadcrumbItem className="min-w-0">
                       <BreadcrumbPage className="truncate">
                         {breadcrumb}
                       </BreadcrumbPage>
@@ -75,8 +91,8 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
             </Button>
           </div>
         </header>
-        <div className="min-h-0 flex-1 overflow-auto">
-          <main className="flex w-full flex-col gap-6 px-4 py-5 sm:px-6 lg:px-5">
+        <div className="min-h-0 flex-1 overflow-auto" data-dashboard-scroll>
+          <main className="relative flex min-h-full w-full flex-col gap-6 px-4 py-5 sm:px-6 lg:px-5">
             {children}
           </main>
         </div>

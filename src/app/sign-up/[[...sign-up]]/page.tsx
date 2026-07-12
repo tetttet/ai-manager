@@ -15,7 +15,7 @@ export default function SignUpPage() {
           path="/sign-up"
           routing="path"
           signInUrl="/login"
-          fallbackRedirectUrl="/dashboard"
+          fallbackRedirectUrl="/onboarding/workspace"
           appearance={authAppearance}
         />
       </ClerkLoaded>

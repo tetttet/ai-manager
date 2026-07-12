@@ -7,12 +7,12 @@ import * as React from "react";
 import {
   BadgeCheck,
   Bell,
-  BrainCircuit,
+  Bot,
   ChevronRight,
   ChevronsUpDown,
-  Command,
   CreditCard,
   LogOut,
+  Pencil,
   Plus,
   Sparkles,
 } from "lucide-react";
@@ -42,46 +42,42 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSkeleton,
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
   SidebarRail,
 } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  dashboardNavGroups,
-  dashboardProjects,
-} from "@/components/dashboard/navigation";
+import { dashboardNavGroups } from "@/components/dashboard/navigation";
 import { UserAvatar } from "../ui/user-avatar";
 import { getInitials } from "@/services/get-initials";
-
-const data = {
-  workspaces: [
-    {
-      name: "AI Manager",
-      logo: Command,
-      plan: "Pro",
-    },
-    {
-      name: "Hermes Core",
-      logo: BrainCircuit,
-      plan: "Dev",
-    },
-    {
-      name: "Launch Lab",
-      logo: Sparkles,
-      plan: "Beta",
-    },
-  ],
-};
+import {
+  agentsUpdatedEventName,
+  createRemoteAgentRepository,
+  type Agent,
+} from "@/lib/agent-repository";
+import { useWorkspace } from "@/components/dashboard/workspace-provider";
+import { AgentLogo } from "@/components/dashboard/agent-logo";
+import { WorkspaceLogo } from "@/components/dashboard/workspace-logo";
 
 export function AppSidebar() {
   const pathname = usePathname();
   const { openUserProfile, signOut } = useClerk();
   const { isLoaded, user } = useUser();
-  const [activeWorkspace, setActiveWorkspace] = React.useState(
-    data.workspaces[0],
-  );
+  const {
+    accountId,
+    getToken,
+    activeWorkspace,
+    activeWorkspaceId,
+    workspaces,
+    selectWorkspace,
+  } = useWorkspace();
+  const [agents, setAgents] = React.useState<Agent[]>([]);
+  const [isLoadingAgents, setIsLoadingAgents] = React.useState(true);
+  const [agentsError, setAgentsError] = React.useState<string | null>(null);
+  const activeWorkspaceLabel =
+    activeWorkspace?.businessType === "company" ? "Company" : "Personal";
   const displayName =
     user?.fullName ||
     user?.username ||
@@ -93,6 +89,54 @@ export function AppSidebar() {
     "Signed in";
   const initials = getInitials(displayName, displayEmail);
   const isUserReady = isLoaded && Boolean(user);
+  const isAgentsPage = pathname === "/dashboard/assistants/agents";
+
+  React.useEffect(() => {
+    let shouldIgnore = false;
+
+    async function loadAgents() {
+      if (!isLoaded) {
+        return;
+      }
+
+      if (!accountId || !activeWorkspaceId) {
+        setAgents([]);
+        setAgentsError(null);
+        setIsLoadingAgents(false);
+        return;
+      }
+
+      try {
+        setIsLoadingAgents(true);
+        setAgentsError(null);
+        const storedAgents = await createRemoteAgentRepository({
+          getToken,
+          workspaceId: activeWorkspaceId,
+        }).listAgents();
+
+        if (!shouldIgnore) {
+          setAgents(storedAgents);
+        }
+      } catch {
+        if (!shouldIgnore) {
+          setAgents([]);
+          setAgentsError("Agents unavailable");
+        }
+      } finally {
+        if (!shouldIgnore) {
+          setIsLoadingAgents(false);
+        }
+      }
+    }
+
+    void loadAgents();
+    window.addEventListener(agentsUpdatedEventName, loadAgents);
+
+    return () => {
+      shouldIgnore = true;
+      window.removeEventListener(agentsUpdatedEventName, loadAgents);
+    };
+  }, [accountId, activeWorkspaceId, getToken, isLoaded]);
 
   return (
     <Sidebar collapsible="icon">
@@ -105,15 +149,17 @@ export function AppSidebar() {
                   size="lg"
                   className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
                 >
-                  <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                    <activeWorkspace.logo className="size-4" />
-                  </div>
+                  <WorkspaceLogo
+                    id={activeWorkspace?.id}
+                    name={activeWorkspace?.name}
+                    businessType={activeWorkspace?.businessType}
+                  />
                   <div className="grid flex-1 text-left text-sm leading-tight">
                     <span className="truncate font-semibold">
-                      {activeWorkspace.name}
+                      {activeWorkspace?.name ?? "Workspace"}
                     </span>
                     <span className="truncate text-xs">
-                      {activeWorkspace.plan}
+                      {activeWorkspaceLabel}
                     </span>
                   </div>
                   <ChevronsUpDown className="ml-auto size-4" />
@@ -126,27 +172,44 @@ export function AppSidebar() {
                 sideOffset={4}
               >
                 <DropdownMenuLabel>Workspaces</DropdownMenuLabel>
-                {data.workspaces.map((workspace, index) => (
+                {workspaces.map((workspace, index) => (
                   <DropdownMenuItem
-                    key={workspace.name}
-                    onClick={() => setActiveWorkspace(workspace)}
+                    key={workspace.id}
+                    onClick={() => selectWorkspace(workspace.id)}
                     className="gap-2 p-2"
                   >
-                    <div className="flex size-6 items-center justify-center rounded-md border bg-background">
-                      <workspace.logo className="size-4 shrink-0" />
-                    </div>
+                    <WorkspaceLogo
+                      id={workspace.id}
+                      name={workspace.name}
+                      businessType={workspace.businessType}
+                      size="sm"
+                    />
                     <span>{workspace.name}</span>
-                    <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
+                    <DropdownMenuShortcut>
+                      {workspace.id === activeWorkspaceId ? "✓" : `⌘${index + 1}`}
+                    </DropdownMenuShortcut>
                   </DropdownMenuItem>
                 ))}
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="gap-2 p-2">
-                  <div className="flex size-6 items-center justify-center rounded-md border bg-background">
-                    <Plus className="size-4" />
-                  </div>
-                  <span className="font-medium text-muted-foreground">
-                    New workspace
-                  </span>
+                <DropdownMenuItem asChild className="gap-2 p-2">
+                  <Link href="/dashboard/settings/general">
+                    <div className="flex size-6 items-center justify-center rounded-md border bg-background">
+                      <Pencil className="size-4" />
+                    </div>
+                    <span className="font-medium text-muted-foreground">
+                      Edit workspace
+                    </span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild className="gap-2 p-2">
+                  <Link href="/onboarding/workspace?mode=create">
+                    <div className="flex size-6 items-center justify-center rounded-md border bg-background">
+                      <Plus className="size-4" />
+                    </div>
+                    <span className="font-medium text-muted-foreground">
+                      New workspace
+                    </span>
+                  </Link>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -160,6 +223,25 @@ export function AppSidebar() {
               const isGroupActive = group.items.some(
                 (item) => pathname === item.href,
               );
+
+              if (group.title === "Settings") {
+                const item = group.items[0];
+
+                return (
+                  <SidebarMenuItem key={group.title}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={pathname === item.href}
+                      tooltip={group.title}
+                    >
+                      <Link href={item.href}>
+                        <group.icon />
+                        <span>{group.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              }
 
               return (
                 <Collapsible
@@ -200,22 +282,43 @@ export function AppSidebar() {
           </SidebarMenu>
         </SidebarGroup>
         <SidebarGroup>
-          <SidebarGroupLabel>Projects</SidebarGroupLabel>
+          <SidebarGroupLabel>Agents</SidebarGroupLabel>
           <SidebarMenu>
-            {dashboardProjects.map((project) => (
-              <SidebarMenuItem key={project.title}>
+            {isLoadingAgents ? (
+              Array.from({ length: 3 }).map((_, index) => (
+                <SidebarMenuItem key={`agent-skeleton-${index}`}>
+                  <SidebarMenuSkeleton showIcon />
+                </SidebarMenuItem>
+              ))
+            ) : agents.length > 0 ? (
+              agents.map((agent) => (
+                <SidebarMenuItem key={agent.id}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={isAgentsPage}
+                    tooltip={`${agent.name} - ${agent.status}`}
+                  >
+                    <Link href="/dashboard/assistants/agents">
+                      <AgentLogo id={agent.id} name={agent.name} size="xs" />
+                      <span>{agent.name}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))
+            ) : (
+              <SidebarMenuItem>
                 <SidebarMenuButton
                   asChild
-                  isActive={pathname === project.href}
-                  tooltip={project.title}
+                  isActive={isAgentsPage}
+                  tooltip={agentsError ?? "Agents"}
                 >
-                  <Link href={project.href}>
-                    <project.icon />
-                    <span>{project.title}</span>
+                  <Link href="/dashboard/assistants/agents">
+                    <Bot />
+                    <span>{agentsError ?? "No agents yet"}</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
-            ))}
+            )}
           </SidebarMenu>
         </SidebarGroup>
       </SidebarContent>

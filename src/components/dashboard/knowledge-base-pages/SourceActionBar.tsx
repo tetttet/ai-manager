@@ -16,12 +16,14 @@ import type { SourceType } from "./source-types";
 type SourceActionBarProps = {
   activeType: SourceType | null;
   sourceCounts: Record<SourceType, number>;
+  disabledSourceTypes: Set<SourceType>;
   onAddSource: (type: SourceType) => void;
 };
 
 export function SourceActionBar({
   activeType,
   sourceCounts,
+  disabledSourceTypes,
   onAddSource,
 }: SourceActionBarProps) {
   return (
@@ -31,6 +33,7 @@ export function SourceActionBar({
           const config = sourceTypeConfig[type];
           const Icon = config.icon;
           const isActive = activeType === type;
+          const isDisabled = disabledSourceTypes.has(type) && !isActive;
 
           return (
             <Tooltip key={type}>
@@ -41,6 +44,7 @@ export function SourceActionBar({
                   size="sm"
                   aria-pressed={isActive}
                   aria-label={config.actionLabel}
+                  disabled={isDisabled}
                   onClick={() => onAddSource(type)}
                   className={cn(
                     "h-8 rounded-sm border-none px-3 text-xs shadow-none",

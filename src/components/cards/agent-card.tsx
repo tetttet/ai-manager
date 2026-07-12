@@ -2,7 +2,6 @@
 
 import { motion, type Transition, useReducedMotion } from "framer-motion";
 import {
-  Bot,
   Edit3,
   MessageSquare,
   MoreVertical,
@@ -12,6 +11,7 @@ import {
   Trash2,
 } from "lucide-react";
 
+import { AgentLogo } from "@/components/dashboard/agent-logo";
 import { Button } from "@/components/ui/button";
 import { CardContent, CardHeader } from "@/components/ui/card";
 import {
@@ -41,6 +41,7 @@ interface Agent {
 interface AgentCardProps {
   agent: Agent;
   viewMode: ViewMode;
+  onConnect?: (agent: Agent) => void;
   onEdit?: (agent: Agent) => void;
   onShare?: (agent: Agent) => void;
   onDisconnect?: (agent: Agent) => void;
@@ -123,6 +124,7 @@ const AgentMetric = ({
 const AgentCard = ({
   agent,
   viewMode,
+  onConnect,
   onEdit,
   onShare,
   onDisconnect,
@@ -162,9 +164,7 @@ const AgentCard = ({
         >
           <div className="flex min-w-0 flex-1 items-start gap-3.5">
             <div className="relative shrink-0">
-              <div className="flex size-11 items-center justify-center rounded-full border border-red-100 bg-red-50 text-red-600">
-                <Bot className="size-6" strokeWidth={1.8} />
-              </div>
+              <AgentLogo id={agent.id} name={agent.name} size="lg" />
 
               <span
                 className={cn(
@@ -203,9 +203,9 @@ const AgentCard = ({
               type="button"
               variant="ghost"
               size="icon"
-              onClick={() => onDisconnect?.(agent)}
+              onClick={() => (onConnect ?? onDisconnect)?.(agent)}
               className="size-8 rounded-lg text-zinc-400 hover:bg-zinc-100 hover:text-zinc-900"
-              aria-label="Disconnect agent"
+              aria-label="Configure agent connections"
             >
               <Unplug className="size-4" />
             </Button>
@@ -256,11 +256,11 @@ const AgentCard = ({
                 </DropdownMenuItem>
 
                 <DropdownMenuItem
-                  onClick={() => onDisconnect?.(agent)}
+                  onClick={() => (onConnect ?? onDisconnect)?.(agent)}
                   className="cursor-pointer rounded-lg"
                 >
                   <Unplug className="mr-2 size-4" />
-                  Disconnect
+                  Connections
                 </DropdownMenuItem>
 
                 <DropdownMenuSeparator />

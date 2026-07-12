@@ -49,6 +49,7 @@ type DocumentFileValue = {
   fileName: string;
   fileSize: number;
   fileType: string;
+  file?: File;
 };
 
 function normalizeTableRows(table: TableData) {
@@ -117,13 +118,12 @@ export function SourceEditorPanel({
       return;
     }
 
-    const nextDocumentFiles = (isEditing ? files.slice(0, 1) : files).map(
-      (file) => ({
-        fileName: file.name,
-        fileSize: file.size,
-        fileType: file.type || "application/octet-stream",
-      }),
-    );
+    const nextDocumentFiles = files.slice(0, 1).map((file) => ({
+      fileName: file.name,
+      fileSize: file.size,
+      fileType: file.type || "application/octet-stream",
+      file,
+    }));
 
     setDocumentFiles(nextDocumentFiles);
     setDocumentFileChanged(true);
@@ -253,6 +253,7 @@ export function SourceEditorPanel({
         fileSize: documentFile.fileSize,
         fileType: documentFile.fileType,
         shouldUpload: documentFileChanged || !isEditing,
+        file: documentFile.file,
       }));
 
       onSave(
@@ -391,7 +392,6 @@ export function SourceEditorPanel({
                 </span>
                 <input
                   type="file"
-                  multiple={!isEditing}
                   accept=".pdf,.html,.txt,.doc,.docx,.csv,.xls,.xlsx"
                   className="w-24 text-xs"
                   onChange={(event) =>
