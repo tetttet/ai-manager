@@ -19,7 +19,7 @@ const sourceTypes = [
   {
     title: "Document",
     description:
-      "Use this for PDF, DOCX, TXT, CSV, XLS or XLSX files. Name the document clearly so agents can understand what the source contains.",
+      "Use this for PDF, DOCX, TXT, CSV, JSON or HTML files. Use Tables for XLS or XLSX files so agents can read rows correctly.",
     icon: FileText,
   },
   {

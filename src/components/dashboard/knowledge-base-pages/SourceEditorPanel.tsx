@@ -392,7 +392,7 @@ export function SourceEditorPanel({
                 </span>
                 <input
                   type="file"
-                  accept=".pdf,.html,.txt,.doc,.docx,.csv,.xls,.xlsx"
+                  accept=".pdf,.html,.txt,.json,.docx,.csv"
                   className="w-24 text-xs"
                   onChange={(event) =>
                     handleDocumentChange(event.target.files)

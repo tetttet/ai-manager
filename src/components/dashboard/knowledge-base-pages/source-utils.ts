@@ -8,13 +8,11 @@ import type {
 
 const supportedDocumentExtensions = new Set([
   "csv",
-  "doc",
   "docx",
   "html",
+  "json",
   "pdf",
   "txt",
-  "xls",
-  "xlsx",
 ]);
 
 export function createEmptyTableData(rowCount = 3, columnCount = 3): TableData {
